@@ -1,0 +1,118 @@
+---
+title: "Praveen"
+output: pdf_document
+date: "2025-01-03"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+# Load necessary libraries
+library(ggplot2)
+library(tidyverse)
+library(readr)
+```
+
+```{r}
+# Load your dataset
+data <- read.csv('Unemployment rates by Metropolitan Statistical Area 1990-2016.csv')
+
+# Display the structure of the dataset
+str(data)
+
+# Summary statistics for both variables
+summary(data$Civilian.Labor.Force)
+summary(data$Unemployment.Rate)
+
+```
+
+
+```{r}
+# Ensure the column is numeric
+data$Civilian.Labor.Force <- as.numeric(as.character(data$Civilian.Labor.Force))
+
+# Plotting a Histogram for Civilian Labor Force
+ggplot(data, aes(x = `Civilian.Labor.Force`)) + 
+  geom_histogram(aes(y = after_stat(density)), binwidth = 5000, fill = "skyblue", color = "black") +
+  geom_density(color = "blue", size = 1) +
+  theme_minimal() +
+  labs(
+    title = "Histogram of Civilian Labor Force",
+    x = "Civilian Labor Force",
+    y = "Density"
+  )
+
+# Plotting a Histogram for Unemployment Rate
+ggplot(data, aes(x = `Unemployment.Rate`)) + 
+  geom_histogram(aes(y = after_stat(density)), binwidth = 0.5, fill = "lightcoral", color = "black") +
+  geom_density(color = "red", size = 1) +
+  theme_minimal() +
+  labs(
+    title = "Histogram of Unemployment Rate",
+    x = "Unemployment Rate (%)",
+    y = "Density"
+  )
+
+```
+
+
+```{r}
+# Check for normality of the dependent variable
+# Histogram with density curve
+ggplot(data, aes(x = Unemployment.Rate)) +
+  geom_histogram(aes(y = ..density..), binwidth = 0.5, color = "black", fill = "gray") +
+  geom_density(color = "blue") +
+  labs(
+    title = "Histogram of Unemployment Rate",
+    x = "Unemployment Rate",
+    y = "Density"
+  ) +
+  theme_minimal()
+
+# Check the number of rows in the dataset
+nrow(data)
+
+# Shapiro-Wilk test for normality
+if (nrow(data) > 5000) {
+  sampled_data <- data[sample(1:nrow(data), 5000), ]
+} else {
+  sampled_data <- data
+}
+shapiro_test <- shapiro.test(sampled_data$Unemployment.Rate)
+
+# Perform the Shapiro-Wilk test on the sampled data
+shapiro_test_DV <- shapiro.test(sampled_data$Unemployment.Rate)
+print(shapiro_test)
+
+
+shapiro_test_IV <- shapiro.test(sampled_data$Civilian.Labor.Force)
+print(shapiro_test)
+```
+```{r}
+# Calculate Spearman's correlation
+spearman_correlation <- cor.test(
+  data$Civilian.Labor.Force, 
+  data$Unemployment.Rate, 
+  method = "spearman"
+)
+
+# Print Spearman's correlation results
+print(spearman_correlation)
+
+
+```
+
+```{r}
+# Plotting a Scatterplot for Civilian Labor Force vs Unemployment Rate
+ggplot(data, aes(x = `Civilian.Labor.Force`, y = `Unemployment.Rate`)) +
+  geom_point(color = "darkblue", alpha = 0.5) +
+  theme_minimal() +
+  labs(title = "Scatterplot of Civilian Labor Force vs Unemployment Rate",
+       x = "Civilian Labor Force",
+       y = "Unemployment Rate (%)")
+
+```
+
